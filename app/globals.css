@@ -1,11 +1,66 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Verba Brand Colors */
+:root {
+  --verba-indigo: #5B3DF5;
+  --verba-cyan: #00D1FF;
+  --verba-mint: #2EE6A6;
+  --verba-amber: #FFB020;
+  --verba-midnight: #0B0C14;
+  --verba-cloud: #F6F7FB;
+  --verba-ink: #111827;
+  --verba-slate: #334155;
+  --verba-gray: #94A3B8;
+  --verba-line: #E5E7EB;
+}
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--verba-cloud);
+  color: var(--verba-ink);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sora), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 600;
+}
+
+/* Verba Gradient */
+.verba-gradient {
+  background: linear-gradient(135deg, var(--verba-indigo) 0%, var(--verba-cyan) 100%);
+}
+
+.verba-gradient-text {
+  background: linear-gradient(135deg, var(--verba-indigo) 0%, var(--verba-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Verba Button Styles */
+.btn-verba-primary {
+  background: linear-gradient(135deg, var(--verba-indigo) 0%, var(--verba-cyan) 100%);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-verba-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(91, 61, 245, 0.3);
+}
+
+.btn-verba-secondary {
+  background-color: var(--verba-mint);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-verba-secondary:hover {
+  background-color: #26d19a;
+  transform: translateY(-1px);
 }

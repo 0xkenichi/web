@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "../../../utils/supabase/client";
+import { createClient } from "../../../../utils/supabase/client";
+import Logo from "../components/Logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -70,11 +71,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <div>
-          <h2 className="text-3xl font-bold text-center">Verba</h2>
-          <p className="mt-2 text-center text-gray-600">Sign in to your account</p>
+    <div className="min-h-screen flex items-center justify-center bg-[var(--verba-cloud)]">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg border border-[var(--verba-line)]">
+        <div className="flex flex-col items-center">
+          <Logo size="lg" showText={true} />
+          <p className="mt-4 text-center text-[var(--verba-slate)]">Sign in to your account</p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           {error && (
@@ -92,7 +93,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-[var(--verba-line)] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--verba-indigo)] focus:border-[var(--verba-indigo)]"
             />
           </div>
           <div>
@@ -105,14 +106,14 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-[var(--verba-line)] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--verba-indigo)] focus:border-[var(--verba-indigo)]"
             />
           </div>
           <div className="flex space-x-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 verba-gradient text-white py-2 px-4 rounded-md hover:opacity-90 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
@@ -120,7 +121,7 @@ export default function LoginPage() {
               type="button"
               onClick={handleSignUp}
               disabled={loading}
-              className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 bg-[var(--verba-slate)] text-white py-2 px-4 rounded-md hover:bg-[var(--verba-ink)] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "Signing up..." : "Sign up"}
             </button>

@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { showToast } from "./Toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
 
 interface CreditPack {
   id: string;
@@ -40,9 +43,103 @@ export default function PaymentModal({ onClose }: { onClose: () => void }) {
     }
   };
 
+  const { session } = useAuth();
+
   const handlePurchase = async (packId: string) => {
-    // In production, this would integrate with Stripe
-    alert(`Purchase flow for ${packId} - Stripe integration needed`);
+    if (!STRIPE_PUBLISHABLE_KEY) {
+      showToast("Stripe not configured. Please contact support.", "error");
+      return;
+    }
+
+    try {
+      // Get token from session
+      const token = session?.access_token;
+      if (!token) {
+        showToast("Please log in to purchase credits", "error");
+        return;
+      }
+
+      // Create payment intent
+      const intentResponse = await fetch(`${API_BASE_URL}/api/payments/create-intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ packId }),
+      });
+
+      if (!intentResponse.ok) {
+        throw new Error("Failed to create payment intent");
+      }
+
+      const { data } = await intentResponse.json();
+
+      // Load Stripe.js
+      const stripe = (window as any).Stripe?.(STRIPE_PUBLISHABLE_KEY);
+      if (!stripe) {
+        // Dynamically load Stripe.js
+        const script = document.createElement("script");
+        script.src = "https://js.stripe.com/v3/";
+        script.onload = () => {
+          const stripeInstance = (window as any).Stripe(STRIPE_PUBLISHABLE_KEY);
+          handleStripePayment(stripeInstance, data.clientSecret, packId, token);
+        };
+        document.head.appendChild(script);
+      } else {
+        handleStripePayment(stripe, data.clientSecret, packId, token);
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+      showToast("Failed to process payment. Please try again.", "error");
+    }
+  };
+
+  const handleStripePayment = async (
+    stripe: any,
+    clientSecret: string,
+    packId: string,
+    token: string
+  ) => {
+    try {
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: await stripe.elements().create("card"),
+        },
+      });
+
+      if (error) {
+        showToast(error.message || "Payment failed", "error");
+        return;
+      }
+
+      if (paymentIntent.status === "succeeded") {
+        // Confirm purchase on backend
+        const purchaseResponse = await fetch(`${API_BASE_URL}/api/payments/purchase`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            packId,
+            paymentIntentId: paymentIntent.id,
+          }),
+        });
+
+        if (purchaseResponse.ok) {
+          showToast("Credits purchased successfully!", "success");
+          onClose();
+          // Refresh page to update credit balance
+          window.location.reload();
+        } else {
+          showToast("Payment succeeded but failed to add credits. Contact support.", "error");
+        }
+      }
+    } catch (error) {
+      console.error("Stripe payment error:", error);
+      showToast("Payment processing failed", "error");
+    }
   };
 
   return (

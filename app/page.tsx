@@ -2,29 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "../../utils/supabase/client";
+import { useAuth } from "./contexts/AuthContext";
 import MessageEnhancer from "./components/MessageEnhancer";
 import CreditBalance from "./components/CreditBalance";
 import TranslationHistory from "./components/TranslationHistory";
-import type { User } from "@supabase/supabase-js";
+import Logo from "./components/Logo";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"enhance" | "history">("enhance");
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, signOut } = useAuth();
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push("/login");
-      } else {
-        setUser(user);
-      }
-      setLoading(false);
-    });
-  }, [router, supabase]);
+    if (!loading && !user) {
+      router.push("/landing");
+    }
+  }, [loading, user, router]);
 
   if (loading) {
     return (
@@ -39,20 +32,32 @@ export default function Home() {
   }
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     router.push("/login");
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
+    <div className="min-h-screen bg-[var(--verba-cloud)]">
+      <header className="bg-white shadow-sm border-b border-[var(--verba-line)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Verba</h1>
+          <Logo size="md" showText={true} />
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">{user.email}</span>
+            <button
+              onClick={() => router.push("/docs")}
+              className="text-sm text-gray-600 hover:text-gray-900 font-medium hidden md:block"
+            >
+              Docs
+            </button>
+            <button
+              onClick={() => router.push("/pricing")}
+              className="text-sm text-[var(--verba-indigo)] hover:text-[var(--verba-cyan)] font-medium transition-colors"
+            >
+              Pricing
+            </button>
+            <span className="text-sm text-[var(--verba-slate)] hidden sm:block">{user.email}</span>
             <button
               onClick={handleLogout}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-[var(--verba-indigo)] hover:text-[var(--verba-cyan)] font-medium transition-colors"
             >
               Logout
             </button>

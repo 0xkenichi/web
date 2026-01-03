@@ -1,4 +1,4 @@
-import { createClient } from "../utils/supabase/middleware";
+import { createClient } from "../../utils/supabase/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
@@ -18,10 +18,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Redirect authenticated users away from login/register
+  // Redirect authenticated users away from login/register/landing
   if (
     (request.nextUrl.pathname === "/login" ||
-      request.nextUrl.pathname === "/register") &&
+      request.nextUrl.pathname === "/register" ||
+      request.nextUrl.pathname === "/landing") &&
     user
   ) {
     return NextResponse.redirect(new URL("/", request.url));
